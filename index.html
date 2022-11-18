@@ -1,0 +1,851 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Shop</title>
+
+    <script src="https://code.jquery.com/jquery-3.6.0.js" integrity="sha256-H+K7U5CnXl1h5ywQfKtSj8PCmoN9aaq30gDh27Xc0jk=" crossorigin="anonymous"></script>
+    <link rel="stylesheet" href="index.css">
+
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.1.1/css/all.min.css" integrity="sha512-KfkfwYDsLkIlwQp6LFnl8zNdLGxu9YAA1QvwINks4PhcElQSvqcyVLLD9aMhXd13uQjoXtEKNosOWaZqXgel0g==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+    <script src="//cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+
+</head>
+<body>
+
+    <!-- เมนูด้านบนสุด -->
+    <nav>
+        <div class="nav-container">
+            <a href="index.html">
+                <img src="./imgs/limlogo.png" class="logonav">
+            </a>
+
+            <!-- หากลอกอินแล้วจะแสดงกล่องนี้ -->
+            <div id="boxloged" class="nav-profile" style="display: none;">
+                <p id="showuser" class="nav-profile-name">Bearbug</p>
+                <!-- ตระกร้าสินค้า -->
+                <div onclick="openCart()" style="cursor: pointer;" class="nav-profile-cart">
+                    <i class="fas fa-cart-shopping"></i>
+                    <!-- จำนวนสินค้าในตระกร้า -->
+                    <div id="cartcount" class="cartcount" style="display: none;">
+                        0
+                    </div>
+                </div>
+                <!-- ปุ่มออกจากระบบ -->
+                <button onclick="logout()" class="btn" style="margin-left: 20px; padding: 5px 10px; border: 1px solid #fff; background: transparent; color: #fff;">
+                    ออกจากระบบ
+                </button>
+            </div>
+            <!-- หากยังไม่ลอกอิน จะแสดงกลอ่งนี้ -->
+            <div id="boxunloged" class="nav-profile">
+                <div  class="nav-profile-cart">
+                    <!-- ปุ่มสมัครสมาชิก -->
+                    <button onclick="register()" class="btn" style="padding: 10px 20px; border: 1px solid #fff; background: transparent; color: #fff;">
+                        สมัครสมาชิก
+                    </button>
+                    <!-- ปุ่มเข้าสู่ระบบ -->
+                    <button onclick="login()" class="btn" style="padding: 10px 20px; background: #fff;">
+                        เข้าสู่ระบบ
+                    </button>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container">
+        <div class="sidebar">
+            <!-- กล่องข้อความค้นหา -->
+            <input onkeyup="searchsomething(this)" id="txt_search" type="text" class="sidebar-search" placeholder="ค้นหา...">
+            
+            <!-- ตัวแสดงเมนู ดึงมาจากฐานข้อมูลมาแสดง -->
+            <div id="sidemenu" style="display: flex; flex-direction: column;">
+                <a onclick="searchproduct('all')" class="sidebar-items">
+                    ทั้งหมด
+                </a>
+            </div>
+        </div>
+        <div id="productlist" class="product">
+            <!-- พื้นที่แสดงสินค้าทั้งหมด -->
+        </div>
+    </div>
+
+    <!-- หน้าต่างเมื่อกดปุ่มเปิดรายละเอียด -->
+    <div id="modalDesc" class="modal" style="display: none;">
+        <div onclick="closeModal()" class="modal-bg"></div>
+        <div class="modal-page">
+            <h2>รายละเอียด</h2>
+            <br>
+            <div class="modaldesc-content">
+                <!-- รูปภาพ -->
+                <img id="mdd-img" class="modaldesc-img" src="./imgs/cam1.png" alt="">
+                <div class="modaldesc-detail">
+                    <!-- ชื่อสินค้า -->
+                    <p id="mdd-name" style="font-size: 1.5vw;">แคม</p>
+                    <!-- ราคาสินค้า -->
+                    <p id="mdd-price" style="font-size: 1.2vw;">600 THB</p>
+                    <br>
+                    <p id="mdd-desc" style="color: #adadad;">Lorem iaudantium harum doloremque alias. Quae, vel ipsum quasi, voluptas, sit optio nemo magni numquam non dicta voluptates porro! Vero eveniet numquam sit aut vel eligendi officiis iste tenetur expedita. Delectus vero quibusdam adipisci in. Esse.</p>
+                    <br>
+                    <!-- <div  style="width: 100%; margin-bottom: 10px; display: none;">
+                        <button class="btn-size" id="btn-size40" onclick="selectSize(this ,'40')" style="background: #fff; color: #000; padding: 5px 25px; border-radius: 5px; border: 1px solid #000; cursor: pointer;">40</button>
+                        <button class="btn-size" id="btn-size42" onclick="selectSize(this ,'42')" style="background: #fff; color: #000; padding: 5px 25px; border-radius: 5px; border: 1px solid #000; cursor: pointer;">42</button>
+                        <button class="btn-size" id="btn-size44" onclick="selectSize(this ,'44')" style="background: #fff; color: #000; padding: 5px 25px; border-radius: 5px; border: 1px solid #000; cursor: pointer;">44</button>
+                    </div> -->
+                    <div class="btn-control">
+                        <!-- ปิดหน้าต่าง -->
+                        <button onclick="closeModal()" class="btn">
+                            ปิด
+                        </button>
+                        <!-- ปุ่มเพิ่มสินค้าใส่ตระกร้า -->
+                        <button onclick="addtocart()" class="btn btn-buy">
+                            เพิ่มใส่ตระกร้า
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- หน้าต่างตระกร้าสินค้า -->
+    <div id="modalCart" class="modal" style="display: none;">
+        <div onclick="closeModal()" class="modal-bg"></div>
+        <div class="modal-page">
+            <h2>ตระกร้าสินค้า</h2>
+            <br>
+            <div id="mycart" class="cartlist">
+                <!-- พื้นที่แสดงตระกร้าสินค้า -->
+            </div>
+
+            <div>
+                <div id="boxaddr" style="width: 100%; margin-top: 20px;">
+                    <p>ที่อยู่สำหรับการจัดส่ง</p>
+                    <!-- กล่องข้อความสำหรับกรอกที่อยู่จัดส่ง -->
+                    <textarea id="txt_addr" style="width: 100%; border: none; padding: 10px; background: #f2f2f2; border-radius: 10px;"></textarea>
+                  </div>
+                  <div class="btn-control">
+                        <!-- ปุ่มปิดหน้าต่าง -->
+                      <button onclick="closeModal()" class="btn">
+                          ปิด
+                      </button>
+                      <!-- ปุ่มชำระเงิน -->
+                      <button onclick="buynow()" class="btn btn-buy">
+                          ชำระเงิน
+                      </button>
+                  </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- หน้าต่างสำหรับสมัครสมาชิก -->
+    <div id="modalRegister" class="modal" style="display: none;">
+        <div onclick="closeModal()" class="modal-bg"></div>
+        <div class="modal-page">
+            <h2>สมัครสมาชิก</h2>
+            <br>
+            <div>
+                <!-- แบบฟอร์มสำหรับการสมัครสมาชิก -->
+                <div style="margin-bottom: 10px;">
+                    <p>บัญชีผู้ใช้ (เบอร์โทรศัพท์)</p>
+                    <input id="regis_phoneno" type="text" maxlength="10" placeholder="บัญชีผู้ใช้" style="font-size: 1rem; padding: 10px; border: 1px solid #e5e5e5; border-radius: 5px; width: 100%;">
+                </div>
+                <div style="margin-bottom: 10px;">
+                    <p>รหัสผ่าน</p>
+                    <input id="regis_pass" type="password" placeholder="รหัสผ่าน" style="font-size: 1rem; padding: 10px; border: 1px solid #e5e5e5; border-radius: 5px; width: 100%;">
+                </div>
+                <div style="margin-bottom: 10px;">
+                    <p>ชื่อผู้ใช้</p>
+                    <input id="regis_name" type="text" placeholder="ชื่อผู้ใช้" style="font-size: 1rem; padding: 10px; border: 1px solid #e5e5e5; border-radius: 5px; width: 100%;">
+                </div>
+            </div>
+
+            <div class="btn-control">
+                <!-- ปุ่มปิดหน้าต่าง -->
+                <button onclick="closeModal()" class="btn">
+                    ปิด
+                </button>
+                <!-- ปุ่มสมัครสมาชิก -->
+                <button onclick="registernow()" class="btn btn-buy">
+                    สมัครสมาชิก
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- หน้าต่างสำหรับการเข้าสู่ระบบ -->
+    <div id="modalLogin" class="modal" style="display: none;">
+        <div onclick="closeModal()" class="modal-bg"></div>
+        <div class="modal-page" style="min-height: fit-content !important;">
+            <h2>เข้าสู่ระบบ</h2>
+            <br>
+            <div>
+                <!-- แบบฟอร์มสำหรับกรอก username และ password -->
+                <div style="margin-bottom: 10px;">
+                    <p>บัญชีผู้ใช้ (เบอร์โทรศัพท์)</p>
+                    <input id="login_phoneno" type="text" maxlength="10" placeholder="บัญชีผู้ใช้" style="font-size: 1rem; padding: 10px; border: 1px solid #e5e5e5; border-radius: 5px; width: 100%;">
+                </div>
+                <div style="margin-bottom: 10px;">
+                    <p>รหัสผ่าน</p>
+                    <input id="login_pass" type="password" placeholder="รหัสผ่าน" style="font-size: 1rem; padding: 10px; border: 1px solid #e5e5e5; border-radius: 5px; width: 100%;">
+                </div>
+            </div>
+
+            <div class="btn-control">
+                <!-- ปุ่มปิดหน้าต่าง -->
+                <button onclick="closeModal()" class="btn">
+                    ปิด
+                </button>
+                <!-- ปุ่มเข้าสู่ระบบ -->
+                <button onclick="loginnow()" class="btn btn-buy">
+                    เข้าสู่ระบบ
+                </button>
+            </div>
+        </div>
+    </div>
+    
+  <script>
+
+    // การเลือก enveronment สำหรับการพัฒนาระบบ
+    var pcs = 'DEV'
+    var endpoint = ''
+    if(pcs == 'DEV') {
+        endpoint = 'http://localhost:3000'
+    } else {
+        endpoint = 'http://localhost:3000'
+    }
+
+    // เช็คหากมีการเข้าสู่ระบบแล้ว
+    if(localStorage.spname && localStorage.spuser) {
+        // ระบบจะแสดงชื่อผู้ใช้ที่มุมขวาบน
+        $('#boxloged').show()
+        $('#boxunloged').hide()
+        $('#showuser').text(localStorage.spname)
+    }
+
+    var product; //ตัวแปรสำหรับเก็บรายชื่อสินค้า
+    $(document).ready(() => {
+
+        // การ fetch เรียกรายชื่อสินค้าทั้งหมดจากฐานข้อมูล
+        $.ajax({
+            method: 'get',
+            url: 'http://localhost:3000/api/getproduct',
+            success: function(response) {
+                console.log(response)
+                if(response.RespCode == 200) {
+
+                    product = response.Result;
+
+                    // ตัววนลูปสินค้าเพื่อนำมาแสดงที่หน้าเว็บไซต์
+                    var html = '';
+                    for (let i = 0; i < product.length; i++) {
+                        html += `<div onclick="openProductDetail(${i})" class="product-items ${product[i].type}">
+                                    <img class="product-img " src="${product[i].img}" style="box-shadow: 0 0 10px rgba(0,0,0,0.3);">
+                                    <p style="font-size: 1.2vw;">${product[i].name}</p>
+                                    <p stlye="font-size: 1vw;">${ numberWithCommas(product[i].price) } THB</p>
+                                </div>`;
+                    }
+                    // แสดงสินค้าทั้งหมด
+                    $("#productlist").html(html);
+
+                    // วนลูปเพื่อแสดงเมนูทั้งหมด
+                    var shtml = `
+                        <a onclick="searchproduct('all')" style="cursor: pointer;" class="sidebar-items">
+                            ทั้งหมด
+                        </a>`;
+                    response.Menu.forEach((data) => {
+                        shtml += `
+                        <a onclick="searchproduct('${data.type}')" style="cursor: pointer;" class="sidebar-items">
+                            ${data.type}
+                        </a>`
+                    })
+                    // แสดงเมนูทั้งหมด
+                    $('#sidemenu').html(shtml)
+                }
+            }, error: function(err) {
+                console.log(err)
+            }
+        })
+    })
+
+    // หากกดปุ่มสมัครสมาชิก จะแสดงหน้าต่างการสมัคร
+    function register() {
+        $('#modalRegister').show()
+    }
+    // หากกดปุ่มสมัครสมาชิก
+    function registernow() {
+        // ตรวจสอบหากผู้ใช้ไม่กรอกข้อมูล
+        if($('#regis_phoneno').val().length <= 0) {
+            Swal.fire({
+                icon: 'warning',
+                title: 'โปรดกรอกเบอร์โทรศัพท์'
+            })
+        }
+        else if($('#regis_pass').val().length <= 0) {
+            Swal.fire({
+                icon: 'warning',
+                title: 'โปรดกรอกรหัสผ่าน'
+            })
+        }
+        else if($('#regis_name').val().length <= 0) {
+            Swal.fire({
+                icon: 'warning',
+                title: 'โปรดกรอกชื่อผู้ใช้'
+            })
+        }
+        else {
+            // หากกรอกครบทุกช่อง จะทำการสมัครสมาชิก
+            $.ajax({
+                method: 'post',
+                url: endpoint + '/api/register',
+                data: {
+                    phoneno: $('#regis_phoneno').val(), // ส่งเบอร์โทร
+                    password: MD5($('#regis_pass').val()),  // ส่งรหัส
+                    name: $('#regis_name').val(),  // ส่งชื่อ
+                }, success: response => {
+                    if(response.RespCode == 200) {
+                        // หากสมัครสำเร็จ จะทำการเก็บข้อมูลไว้ในเครื่อง
+                        localStorage.setItem('spuser', $('#regis_phoneno').val())
+                        localStorage.setItem('spname', $('#regis_name').val())
+                        // แสดง popup ว่าสำเร็จ
+                        Swal.fire({
+                            icon: 'success',
+                            title: 'สมัครสมาชิกสำเร็จ',
+                            timer: 2000
+                        }).then((res) => {
+                            if(res.isConfirmed) window.location.reload()// ทำการรีโหลดหน้าเว็บใหม่
+                            else  window.location.reload()
+                        })
+                    }
+                }
+            })
+        }
+    }
+
+    // หากกดปุ่มเพื่อแสดงหน้าต่างเข้าสู่ระบบ
+    function login() {
+        $('#modalLogin').show()
+    }
+    // หากกดปุ่มเข้าสู่ระบบ
+    function loginnow() {
+        // ตรวจสอบหากผู้ใช้ไม่กรอกข้อมูล
+        if($('#login_phoneno').val().length <= 0) {
+            Swal.fire({
+                icon: 'warning',
+                title: 'โปรดกรอกเบอร์โทรศัพท์'
+            })
+        }
+        else if($('#login_pass').val().length <= 0) {
+            Swal.fire({
+                icon: 'warning',
+                title: 'โปรดกรอกรหัสผ่าน'
+            })
+        }
+        else {
+            // หากกรอกครบทุกช่อง จะทำการเข้าสู่ระบบ
+
+            $.ajax({
+                method: 'post',
+                url: endpoint + '/api/login',
+                data: {
+                    phoneno: $('#login_phoneno').val(),
+                    password: MD5($('#login_pass').val()), 
+                }, success: response => {
+                    if(response.RespCode == 200) {
+                        // หากสมัครสำเร็จ จะทำการเก็บข้อมูลไว้ในเครื่อง
+
+                        localStorage.setItem('spuser', $('#login_phoneno').val())
+                        localStorage.setItem('spname', response.Result.Name)
+                        // แสดง popup ว่าสำเร็จ
+                        Swal.fire({
+                            icon: 'success',
+                            title: 'เข้าสู่ระบบสำเร็จ',
+                            timer: 2000
+                        }).then((res) => {
+                            if(res.isConfirmed) window.location.reload() // ทำการรีโหลดหน้าเว็บใหม่
+                            else  window.location.reload()
+                        })
+                    }
+                }
+            })
+        }
+    }
+
+    // ฟังก์ชันสำหรับทำให้ตัวเลขจาก 10000 เป็น 10,000 มันจะเติมคอมมาร์ให้
+    function numberWithCommas(x) {
+        x = x.toString();
+        var pattern = /(-?\d+)(\d{3})/;
+        while (pattern.test(x))
+            x = x.replace(pattern, "$1,$2");
+        return x;
+    }
+
+    // หากมีการพิมค้นหา ระบบจะมาทำงานที่ฟังก์ชันนี้
+    function searchsomething(elem) {
+        var value = $('#'+elem.id).val().toLowerCase()
+        console.log(value)
+
+        var html = '';
+        for (let i = 0; i < product.length; i++) {
+            if( String(product[i].name).toLowerCase().includes(value) ) { //ตัวกรองคำที่พิมเข้ามา เพื่อคัดเลือกสินค้าให้ตรงกับคำที่พิมเข้ามา
+                html += `<div onclick="openProductDetail(${i})" class="product-items ${product[i].type}">
+                        <img class="product-img" src="${product[i].img}" style="box-shadow: 0 0 10px rgba(0,0,0,0.3);">
+                        <p style="font-size: 1.2vw;">${product[i].name}</p>
+                        <p stlye="font-size: 1vw;">${ numberWithCommas(product[i].price) } THB</p>
+                    </div>`;
+            }
+        }
+        if(html == '') {
+            $("#productlist").html(`<p>ไม่พบสินค้า</p>`); //หากไม่พบสินค้าที่พิมมาเลย
+        } else {
+            $("#productlist").html(html); //หากพบก็จะแสดงตามที่พิมมา
+        }
+
+    }
+
+    // เป็นการกดหมวดหมู่ เพื่อค้นหา
+    function searchproduct(param) {
+        console.log(param)
+        $(".product-items").css('display', 'none')
+        if(param == 'all') {
+            $(".product-items").css('display', 'block')
+        }
+        else {
+            $("."+param).css('display', 'block')
+        }
+    }
+
+    // หากกดออกจากระบบ ก็จะทำลาย session ทั้งหมดทิ้ง
+    function logout() {
+        localStorage.removeItem('spname')
+        localStorage.removeItem('spuser')
+        window.location.reload() // รีโหลดหน้าเว็บ
+    }
+
+    var productindex = 0;
+    // หากมีการกดดูรายละเอียดของสินค้านั้นๆ ระบบก็จะโชว์รายละเอียดทั้งหมด
+    function openProductDetail(index) {
+        sizeShoe = '';
+
+        productindex = index;
+        console.log(productindex)
+        $("#modalDesc").css('display', 'flex')
+        $("#mdd-img").attr('src', product[index].img); //แสดงรูปนั้นๆ
+        $("#mdd-name").text(product[index].name) //แสดงชื่อสินค้านั้นๆ
+        $("#mdd-price").text( numberWithCommas(product[index].price) + ' THB')// แสดงราคา
+        $("#mdd-desc").text(product[index].description)//แสดงรายละเอียด
+    }
+
+    // หากกดปิดหน้าต่าง ทุกๆ หน้าต่าง
+    function closeModal() {
+        $(".modal").css('display','none')
+    }
+
+    var cart = [];
+    // หากมีกดปุ่มเพิ่มสินค้าลงตระกร้า
+    function addtocart() {
+        var validate = true;
+
+        if(validate) {
+            var pass = true;
+            $("#boxaddr").css('display', 'block')
+
+            // ตรวจสอบก่อนว่ามีสินค้าที่กดมาในตระกร้าแล้วไหม
+            for (let i = 0; i < cart.length; i++) {
+                if( productindex == cart[i].index ) {
+                    if( sizeShoe == cart[i].size ) {
+                        console.log('found same product') 
+                        cart[i].count++;
+                        pass = false;// หากมีแล้วก็จะปรับเป็น false
+                    }
+                }
+            }
+
+            if(pass) { // พอเป็น false ก็จะ ไม่เข้าการทำงานในนี้ แต่หากไม่พบสินค้าในตระกร้าเลย ก็จะเพิ่มให้
+                var obj = {
+                    index: productindex,
+                    id: product[productindex].id,
+                    name: product[productindex].name,
+                    price: product[productindex].price,
+                    img: product[productindex].img,
+                    count: 1,
+                };
+                // console.log(obj)
+                cart.push(obj)
+            }
+            console.log(cart)
+
+            //แสดงหน้าต่างว่า เพิ่มสำเร็จ
+            Swal.fire({
+                icon: 'success',
+                title: 'Add ' + product[productindex].name + ' to cart !'
+            })
+            //แสดงจำนวนสินค้าในตระกร้า
+            $("#cartcount").css('display','flex').text(cart.length)
+        }
+        
+    }
+
+    // หากกดปุ่มตระกร้าสินค้า ก็จะแสดงรายการทั้งหมดในตระกร้าสินค้า
+    function openCart() {
+        $('#modalCart').css('display','flex')
+        rendercart(); //แสดงรายการทั้งหมดในตระกร้าสินค้า
+    }
+
+    //แสดงรายการทั้งหมดในตระกร้าสินค้า
+    function rendercart() {
+        if(cart.length > 0) {
+            var html = '';
+            var sum = 0;
+            //แสดงรายการทั้งหมดในตระกร้าสินค้า
+            for (let i = 0; i < cart.length; i++) {
+                sum += cart[i].price * cart[i].count; //คำนวนราคาให้ ว่าในตระกร้ามีกี่บาท
+                html += `<div class="cartlist-items">
+                            <div class="cartlist-left">
+                                <img src="${cart[i].img}" alt="">
+                                <div class="cartlist-detail">
+                                    <p style="font-size: 1.5vw;">${cart[i].name}</p>
+                                    <p style="font-size: 1.2vw;">${ numberWithCommas(cart[i].price * cart[i].count) } THB</p>
+                                </div>
+                            </div>
+                            <div class="cartlist-right">
+                                <p onclick="deinitems('-', ${i})" class="btnc">-</p>
+                                <p id="countitems${i}" style="margin: 0 20px;">${cart[i].count}</p>
+                                <p onclick="deinitems('+', ${i})" class="btnc">+</p>
+                            </div>
+                        </div>`;
+            }
+            //แสดงผลที่คำนวนราคามา
+            html += `
+                <div style="font-size: 1.4rem; width: 100%; display: flex; justify-content: flex-end;">
+                    <p style="margin-right: 20px;">รวม</p>
+                    <p><span id="realtotal">${numberWithCommas(sum)}</span> บาท</p>
+                </div>
+            `
+            $("#mycart").html(html)//แสดงผลสินค้าในตระกร้าทั้งหมด
+        }
+        else {
+            $("#mycart").html(`<p>ไม่มีสินค้าในตระกร้า</p>`)//แสดงผลหากไม่พบสินค้าในตระกร้า
+        }
+    }
+
+    // หากมีการกดปุ่มเพิ่มหรือลบสินค้านั้นๆ
+    function deinitems(action, index) {
+        //หากกดลบ
+        if(action == '-') {
+            if(cart[index].count > 0) {
+                cart[index].count--;
+                $("#countitems"+index).text(cart[index].count)
+
+                // หากสินค้ามี 1 ชิ้นแล้วยังมีการกดลบอีก ระบบก็จะถามว่า ให้ลบออกจากตระกร้าเลยไหม
+                if(cart[index].count <= 0) {
+                    Swal.fire({
+                        icon: 'warning',
+                        title: 'Are you sure to delete?',
+                        showConfirmButton: true,
+                        showCancelButton: true,
+                        confirmButtonText: 'Delete',
+                        cancelButtonText: 'Cancel'
+                    }).then((res) => {
+                      if(res.isConfirmed) {
+                        cart.splice(index, 1) // ลบสินค้าออกจากตระกร้า
+                        console.log(cart)
+                        rendercart(); //แสดงสินค้าในตระกร้าใหม่
+                        $("#cartcount").css('display','flex').text(cart.length)// แสดงจำนวนในตระกร้าใหม่
+                        
+                        //หากสินค้าเหลือ 0 ชิ้นก็ซ่อนจำนวนในตระกร้า
+                        if(cart.length <= 0) {
+                            $("#cartcount").css('display','none')
+                        }
+                      }  
+                      else {
+                        cart[index].count++;
+                        $("#countitems"+index).text(cart[index].count)
+                      }
+                    })
+                }
+            }
+        }
+        //หากกดบวก
+        else if(action == '+') {
+            cart[index].count++; //เพิ่มจำนวนสินค้าในตระกร้า
+            $("#countitems"+index).text(cart[index].count)
+        }
+
+        var precal = 0;
+        // precal ราคาให้ดูคร่าวๆ ก่อน
+        for (let i = 0; i < cart.length; i++) {
+            precal += cart[i].count * cart[i].price
+            console.log(precal)
+        }
+        $("#realtotal").text(numberWithCommas(precal))
+    }
+
+    //หากกดปุ่มซื้อ
+    function buynow() {
+        var pass = true;
+        //ตรวจสอบว่ามีการพิมที่อยู่มาแล้วใช่ไหม
+        if($('#txt_addr').val().length <= 0) {
+          pass = false;
+          Swal.fire({
+            icon: 'warning',
+            title: 'โปรดกรอกที่อยู่สำหรับจัดส่ง'
+          })
+        }
+
+        if(pass) {
+          var amount = 0;
+          var shiping = 100; //ราคาค่าส่ง สามารถแก้ได้ตรงนี้
+            //คำนวนราคาให้ดูก่อน
+          for (let i = 0; i < cart.length; i++) {
+            amount += parseInt(cart[i].price) * parseInt(cart[i].count); 
+          }
+          var netamount = amount + shiping //ราคา + ค่าส่ง
+
+          //หน้าต่างยืนยันการสั่งซื้อ
+          Swal.fire({
+            icon: 'info',
+            title: 'ยืนยันการสั่งซื้อ',
+            html: `
+              <div style="width: 200px; margin: 0 auto;">
+                <div style="display: flex; align-items: center; justify-content: space-between;">
+                  <p>ราคา​ : </p>
+                  <p>${numberWithCommas(amount)} บาท</p> 
+                </div>
+                <div style="display: flex; align-items: center; justify-content: space-between;">
+                  <p>ค่าส่ง : </p>
+                  <p>${numberWithCommas(shiping)} บาท</p>
+                </div>
+                <div style="display: flex; align-items: center; justify-content: space-between;">
+                  <p>รวม : </p>
+                  <p>${numberWithCommas(netamount)} บาท</p>
+                </div>
+              </div>
+            `
+          }).then((res) => {
+            if(res.isConfirmed) {
+                // หากกดปุ่มยืนยันการสั่งซื้อ
+              $.ajax({
+                  method: 'post',
+                  url: 'http://localhost:3000/api/buynow',
+                  data: {
+                      product: cart, //ส่งตระกร้าสินค้าไปบันทึก
+                      addr: $('#txt_addr').val() //ส่งที่อยู่ไปบันทึก
+                  }, success: function(response) {
+                      console.log(response)
+                      if(response.RespCode == 200) {
+                        หากบันทึกรายการสำเร็จก็จะแสดงหมายเลขคำสั่งซื้อ
+                          Swal.fire({
+                              icon: 'success',
+                              title: 'สำเร็จ',
+                              text: 'หมายเลขการสั่งซื้อ ' + response.Result.tx + ' คุณจะได้รับสินค้าภายใน 3-7 วันทำการ'
+                          }).then((res) => {
+                              if(res.isConfirmed) {
+                                  cart = []; //ล้างตระกร้าสินค้า
+                                  closeModal(); //ปิดหน้าต่าง
+                                  $("#cartcount").css('display','none') 
+                                  $("#boxaddr").css('display', 'none').val('')
+                              }
+                          })
+                      }
+                      else {
+                          Swal.fire({
+                              icon: 'error',
+                              title: 'Something is went wrong!'
+                          })
+                      }
+                  }, error: function(err) {
+                      console.log(err)
+                  }
+              })
+            }
+          })
+        }
+    }
+
+    // var sizeShoe = '';
+    // function selectSize(elem, size) {
+    //     $('.btn-size').removeClass('size-active')
+    //     $('#'+elem.id).addClass('size-active')
+    //     sizeShoe = size
+    // }
+
+    // โปรแกรมการเข้ารหัส
+    MD5 = function (e) {
+    function h(a, b) {
+      var c, d, e, f, g;
+      e = a & 2147483648;
+      f = b & 2147483648;
+      c = a & 1073741824;
+      d = b & 1073741824;
+      g = (a & 1073741823) + (b & 1073741823);
+      return c & d
+        ? g ^ 2147483648 ^ e ^ f
+        : c | d
+          ? g & 1073741824
+            ? g ^ 3221225472 ^ e ^ f
+            : g ^ 1073741824 ^ e ^ f
+          : g ^ e ^ f;
+    }
+  
+    function k(a, b, c, d, e, f, g) {
+      a = h(a, h(h((b & c) | (~b & d), e), g));
+      return h((a << f) | (a >>> (32 - f)), b);
+    }
+  
+    function l(a, b, c, d, e, f, g) {
+      a = h(a, h(h((b & d) | (c & ~d), e), g));
+      return h((a << f) | (a >>> (32 - f)), b);
+    }
+  
+    function m(a, b, d, c, e, f, g) {
+      a = h(a, h(h(b ^ d ^ c, e), g));
+      return h((a << f) | (a >>> (32 - f)), b);
+    }
+  
+    function n(a, b, d, c, e, f, g) {
+      a = h(a, h(h(d ^ (b | ~c), e), g));
+      return h((a << f) | (a >>> (32 - f)), b);
+    }
+  
+    function p(a) {
+      var b = "",
+        d = "",
+        c;
+      for (c = 0; 3 >= c; c++)
+        (d = (a >>> (8 * c)) & 255),
+          (d = "0" + d.toString(16)),
+          (b += d.substr(d.length - 2, 2));
+      return b;
+    }
+    var f = [],
+      q,
+      r,
+      s,
+      t,
+      a,
+      b,
+      c,
+      d;
+    e = (function (a) {
+      a = a.replace(/\r\n/g, "\n");
+      for (var b = "", d = 0; d < a.length; d++) {
+        var c = a.charCodeAt(d);
+        128 > c
+          ? (b += String.fromCharCode(c))
+          : (127 < c && 2048 > c
+            ? (b += String.fromCharCode((c >> 6) | 192))
+            : ((b += String.fromCharCode((c >> 12) | 224)),
+              (b += String.fromCharCode(((c >> 6) & 63) | 128))),
+            (b += String.fromCharCode((c & 63) | 128)));
+      }
+      return b;
+    })(e);
+    f = (function (b) {
+      var a,
+        c = b.length;
+      a = c + 8;
+      for (
+        var d = 16 * ((a - (a % 64)) / 64 + 1),
+        e = Array(d - 1),
+        f = 0,
+        g = 0;
+        g < c;
+  
+      )
+        (a = (g - (g % 4)) / 4),
+          (f = (g % 4) * 8),
+          (e[a] |= b.charCodeAt(g) << f),
+          g++;
+      a = (g - (g % 4)) / 4;
+      e[a] |= 128 << ((g % 4) * 8);
+      e[d - 2] = c << 3;
+      e[d - 1] = c >>> 29;
+      return e;
+    })(e);
+    a = 1732584193;
+    b = 4023233417;
+    c = 2562383102;
+    d = 271733878;
+    for (e = 0; e < f.length; e += 16)
+      (q = a),
+        (r = b),
+        (s = c),
+        (t = d),
+        (a = k(a, b, c, d, f[e + 0], 7, 3614090360)),
+        (d = k(d, a, b, c, f[e + 1], 12, 3905402710)),
+        (c = k(c, d, a, b, f[e + 2], 17, 606105819)),
+        (b = k(b, c, d, a, f[e + 3], 22, 3250441966)),
+        (a = k(a, b, c, d, f[e + 4], 7, 4118548399)),
+        (d = k(d, a, b, c, f[e + 5], 12, 1200080426)),
+        (c = k(c, d, a, b, f[e + 6], 17, 2821735955)),
+        (b = k(b, c, d, a, f[e + 7], 22, 4249261313)),
+        (a = k(a, b, c, d, f[e + 8], 7, 1770035416)),
+        (d = k(d, a, b, c, f[e + 9], 12, 2336552879)),
+        (c = k(c, d, a, b, f[e + 10], 17, 4294925233)),
+        (b = k(b, c, d, a, f[e + 11], 22, 2304563134)),
+        (a = k(a, b, c, d, f[e + 12], 7, 1804603682)),
+        (d = k(d, a, b, c, f[e + 13], 12, 4254626195)),
+        (c = k(c, d, a, b, f[e + 14], 17, 2792965006)),
+        (b = k(b, c, d, a, f[e + 15], 22, 1236535329)),
+        (a = l(a, b, c, d, f[e + 1], 5, 4129170786)),
+        (d = l(d, a, b, c, f[e + 6], 9, 3225465664)),
+        (c = l(c, d, a, b, f[e + 11], 14, 643717713)),
+        (b = l(b, c, d, a, f[e + 0], 20, 3921069994)),
+        (a = l(a, b, c, d, f[e + 5], 5, 3593408605)),
+        (d = l(d, a, b, c, f[e + 10], 9, 38016083)),
+        (c = l(c, d, a, b, f[e + 15], 14, 3634488961)),
+        (b = l(b, c, d, a, f[e + 4], 20, 3889429448)),
+        (a = l(a, b, c, d, f[e + 9], 5, 568446438)),
+        (d = l(d, a, b, c, f[e + 14], 9, 3275163606)),
+        (c = l(c, d, a, b, f[e + 3], 14, 4107603335)),
+        (b = l(b, c, d, a, f[e + 8], 20, 1163531501)),
+        (a = l(a, b, c, d, f[e + 13], 5, 2850285829)),
+        (d = l(d, a, b, c, f[e + 2], 9, 4243563512)),
+        (c = l(c, d, a, b, f[e + 7], 14, 1735328473)),
+        (b = l(b, c, d, a, f[e + 12], 20, 2368359562)),
+        (a = m(a, b, c, d, f[e + 5], 4, 4294588738)),
+        (d = m(d, a, b, c, f[e + 8], 11, 2272392833)),
+        (c = m(c, d, a, b, f[e + 11], 16, 1839030562)),
+        (b = m(b, c, d, a, f[e + 14], 23, 4259657740)),
+        (a = m(a, b, c, d, f[e + 1], 4, 2763975236)),
+        (d = m(d, a, b, c, f[e + 4], 11, 1272893353)),
+        (c = m(c, d, a, b, f[e + 7], 16, 4139469664)),
+        (b = m(b, c, d, a, f[e + 10], 23, 3200236656)),
+        (a = m(a, b, c, d, f[e + 13], 4, 681279174)),
+        (d = m(d, a, b, c, f[e + 0], 11, 3936430074)),
+        (c = m(c, d, a, b, f[e + 3], 16, 3572445317)),
+        (b = m(b, c, d, a, f[e + 6], 23, 76029189)),
+        (a = m(a, b, c, d, f[e + 9], 4, 3654602809)),
+        (d = m(d, a, b, c, f[e + 12], 11, 3873151461)),
+        (c = m(c, d, a, b, f[e + 15], 16, 530742520)),
+        (b = m(b, c, d, a, f[e + 2], 23, 3299628645)),
+        (a = n(a, b, c, d, f[e + 0], 6, 4096336452)),
+        (d = n(d, a, b, c, f[e + 7], 10, 1126891415)),
+        (c = n(c, d, a, b, f[e + 14], 15, 2878612391)),
+        (b = n(b, c, d, a, f[e + 5], 21, 4237533241)),
+        (a = n(a, b, c, d, f[e + 12], 6, 1700485571)),
+        (d = n(d, a, b, c, f[e + 3], 10, 2399980690)),
+        (c = n(c, d, a, b, f[e + 10], 15, 4293915773)),
+        (b = n(b, c, d, a, f[e + 1], 21, 2240044497)),
+        (a = n(a, b, c, d, f[e + 8], 6, 1873313359)),
+        (d = n(d, a, b, c, f[e + 15], 10, 4264355552)),
+        (c = n(c, d, a, b, f[e + 6], 15, 2734768916)),
+        (b = n(b, c, d, a, f[e + 13], 21, 1309151649)),
+        (a = n(a, b, c, d, f[e + 4], 6, 4149444226)),
+        (d = n(d, a, b, c, f[e + 11], 10, 3174756917)),
+        (c = n(c, d, a, b, f[e + 2], 15, 718787259)),
+        (b = n(b, c, d, a, f[e + 9], 21, 3951481745)),
+        (a = h(a, q)),
+        (b = h(b, r)),
+        (c = h(c, s)),
+        (d = h(d, t));
+  
+    return (p(a) + p(b) + p(c) + p(d)).toLowerCase();
+  };
+  </script>
+
+    
+</body>
+</html>
